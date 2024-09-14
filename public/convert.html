@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Base64 to File</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Convert Base64 to File</h1>
+    <form action="/convert-back" method="POST">
+      <textarea name="base64String" rows="10" placeholder="Paste your base64 string here" required></textarea>
+      <input type="text" name="fileName" placeholder="Enter a file name (with extension, e.g., image.png)" required />
+      <input type="submit" value="Convert to File" />
+    </form>
+    <br/>
+    <!-- Add a button to navigate to the Upload page -->
+    <button onclick="window.location.href='/upload';">Go to File Upload</button>
+  </div>
+</body>
+</html>

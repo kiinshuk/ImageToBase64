@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload File</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Upload a File</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+      <input type="file" name="file" required />
+      <input type="submit" value="Upload!" />
+    </form>
+    <br/>
+    <!-- Add a button to navigate to the Convert page -->
+    <button onclick="window.location.href='/convert-back';">Go to Base64 to File Conversion</button>
+  </div>
+  
+  <!-- Description and How-to section -->
+  <div class="about">
+    <h1>Description</h1>
+    <p>This tool allows you to upload a file and convert it to Base64 format, or convert a Base64 string back to its original file format.</p>
+
+    <h1>How to Use</h1>
+    <ul>
+      <li>To convert a file to Base64: Upload the file using the form above and view the Base64 string.</li>
+      <li>To convert Base64 to a file: Click the button to go to the conversion page, paste the Base64 string, and download the converted file.</li>
+    </ul>
+  </div>
+</body>
+</html>
