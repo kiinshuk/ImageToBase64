@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // Use environment port if available
 
 // Serve static files (CSS, HTML)
 app.use(express.static('public'));
@@ -16,7 +16,7 @@ app.use(express.json({ limit: '50mb' }));
 // Multer for file uploads, storing in 'uploads/' directory
 const upload = multer({
   dest: 'uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 }  // 50MB file size limit
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB file size limit
 });
 
 // ========== Routes ==========
@@ -30,14 +30,15 @@ app.get('/upload', (req, res) => {
 app.post('/upload', upload.single('file'), (req, res) => {
   const filePath = req.file.path;
 
-  // Read the file and convert to base64
   fs.readFile(filePath, (err, data) => {
-    if (err) return res.status(500).send('File reading failed.');
+    if (err) {
+      console.error('File reading failed:', err);
+      return res.status(500).send('File reading failed.');
+    }
 
     const base64String = Buffer.from(data).toString('base64');
     const fileType = req.file.mimetype;
 
-    // Send page with base64 image, textarea, and navigation buttons
     res.send(`
       <html>
       <head><link rel="stylesheet" href="/style.css"></head>
@@ -54,8 +55,10 @@ app.post('/upload', upload.single('file'), (req, res) => {
       </html>
     `);
 
-    // Delete the temporary file after processing
-    fs.unlink(filePath, () => console.log('Temp file deleted'));
+    fs.unlink(filePath, (unlinkErr) => {
+      if (unlinkErr) console.error('Failed to delete temp file:', unlinkErr);
+      else console.log('Temp file deleted');
+    });
   });
 });
 
@@ -67,16 +70,26 @@ app.get('/convert-back', (req, res) => {
 // Route for converting base64 back to a file and downloading it
 app.post('/convert-back', (req, res) => {
   const { base64String, fileName } = req.body;
+
+  if (!base64String || !fileName) {
+    console.error('Base64 string or file name missing.');
+    return res.status(400).send('Base64 string or file name missing.');
+  }
+
   const fileBuffer = Buffer.from(base64String, 'base64');
   const filePath = path.join(__dirname, 'uploads', fileName);
 
-  // Write the decoded base64 file and send it as a download
   fs.writeFile(filePath, fileBuffer, (err) => {
-    if (err) return res.status(500).send('Failed to write file.');
+    if (err) {
+      console.error('Failed to write file:', err);
+      return res.status(500).send('Failed to write file.');
+    }
 
     res.download(filePath, fileName, () => {
-      // Delete the file after the download completes
-      fs.unlink(filePath, () => console.log('Temp file deleted after download'));
+      fs.unlink(filePath, (unlinkErr) => {
+        if (unlinkErr) console.error('Failed to delete temp file after download:', unlinkErr);
+        else console.log('Temp file deleted after download');
+      });
     });
   });
 });
