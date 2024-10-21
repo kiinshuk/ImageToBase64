@@ -67,7 +67,7 @@ app.get('/convert-back', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'convert.html'));
 });
 
-// Route for converting base64 back to a file and downloading it
+// Route for converting base64 back to a file and providing a link to download or open it
 app.post('/convert-back', (req, res) => {
   const { base64String, fileName } = req.body;
 
@@ -85,14 +85,27 @@ app.post('/convert-back', (req, res) => {
       return res.status(500).send('Failed to write file.');
     }
 
-    res.download(filePath, fileName, () => {
-      fs.unlink(filePath, (unlinkErr) => {
-        if (unlinkErr) console.error('Failed to delete temp file after download:', unlinkErr);
-        else console.log('Temp file deleted after download');
-      });
-    });
+    // Respond with a link to open/download the file
+    res.send(`
+      <html>
+      <head>
+        <link rel="stylesheet" href="/style.css">
+      </head>
+      <body>
+        <div class="container">
+          <h3>File converted successfully!</h3>
+          <a href="/uploads/${fileName}" target="_blank">Open the file</a><br/>
+          <a href="/uploads/${fileName}" download>Download the file</a><br/>
+          <button onclick="window.location.href='/convert-back';">Convert Another File</button>
+        </div>
+      </body>
+      </html>
+    `);
   });
 });
+
+// Serve converted files for downloading or opening
+app.use('/uploads', express.static('uploads'));
 
 // Start the server
 app.listen(PORT, () => {
